@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+  react-app:
+    build: ./frontend # directory of your React app
+    ports:
+      - "80:80"
+    depends_on:
+      - express-server
+
+  express-server:
+    build: ./backend/express # directory of your Express app
+    environment:
+      - PORT=8082
+    ports:
+      - "8082:8082"
