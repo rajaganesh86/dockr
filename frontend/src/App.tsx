@@ -9,6 +9,24 @@ function App() {
     fetch("http://localhost:8082/api/main")
       .then((res) => res.json())
       .then((res) => console.log(res, "res"));
+    fetch("http://localhost:8080/v1/graphql", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        query: `{
+          posts {
+            id
+            title
+          }
+      }`,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => console.log(res, "res"));
   }, []);
 
   return (
