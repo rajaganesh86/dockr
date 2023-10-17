@@ -5,6 +5,7 @@ services:
     ports:
       - "80:80"
     depends_on:
+      - hasura
       - express-server
 
   express-server:
@@ -13,3 +14,30 @@ services:
       - PORT=8082
     ports:
       - "8082:8082"
+
+  postgres:
+    image: postgres:15
+    restart: always
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgrespassword
+  
+  hasura:
+    image: hasura/graphql-engine:v2.33.0.cli-migrations-v3
+    volumes:
+      - ./backend/hasura/migrations:/hasura-migrations
+      - ./backend/hasura/metadata:/hasura-metadata
+    ports:
+      - "8080:8080"
+    depends_on:
+      - express-server
+      - postgres
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
+      PG_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
+      restart: always
+
+volumes:
+  db_data:

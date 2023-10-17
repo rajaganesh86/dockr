@@ -18,9 +18,9 @@ function App() {
 
       body: JSON.stringify({
         query: `{
-          posts {
+          users {
             id
-            title
+            name 
           }
       }`,
       }),
