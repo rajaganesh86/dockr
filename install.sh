@@ -286,7 +286,21 @@ send_event() {
     fi
 
 }
+download_composefile() {
 
+        # Construct the Gist raw URL
+        GIST_RAW_URL="https://gist.githubusercontent.com/rajaganesh86/d815d6bc63eb94f30f3be5c21c663ba9/raw/477d29cd8598e75072a464a5824b52ee114ec013/docker-compose.yml"
+        
+        echo "Downloading docker-compose.yml file..."
+        curl -O -L "$GIST_RAW_URL" 2>/dev/null
+
+        # Check if the download was successful
+        if [ $? -eq 0 ]; then
+            echo "docker-compose.yml file downloaded successfully."
+        else
+            echo "docker-compose.yml file download failed."
+        fi
+}
 send_event "install_started"
 
 if [[ $desired_os -eq 0 ]]; then
@@ -323,6 +337,7 @@ if ! is_command_present docker-compose; then
 fi
 
 start_docker
+download_composefile
 ask_env
 
 echo ""
