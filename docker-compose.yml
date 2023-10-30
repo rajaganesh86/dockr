@@ -1,19 +1,23 @@
 version: '3.7'
 services:
-  react-app:
-    build: ./frontend # directory of your React app
+  react_app:
+    image: crajaganesh/databui:v1
     ports:
       - "80:80"
     depends_on:
       - hasura
-      - express-server
+      - express_server
+    networks:
+      - datab
 
-  express-server:
-    build: ./backend/express # directory of your Express app
+  express_server:
+    image: crajaganesh/databsvr:v1
     environment:
       - PORT=8082
     ports:
       - "8082:8082"
+    networks:
+      - datab
 
   postgres:
     image: postgres:15
@@ -21,8 +25,10 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_PASSWORD: postgrespassword
-  
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    networks:
+      - datab
+
   hasura:
     image: hasura/graphql-engine:v2.33.0.cli-migrations-v3
     volumes:
@@ -30,14 +36,22 @@ services:
       - ./backend/hasura/metadata:/hasura-metadata
     ports:
       - "8080:8080"
-    depends_on:
-      - express-server
-      - postgres
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
-      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
-      PG_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
+      HASURA_GRAPHQL_DATABASE_URL: "${HASURA_GRAPHQL_DATABASE_URL}"
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: "${HASURA_GRAPHQL_METADATA_DATABASE_URL}"
+      PG_DATABASE_URL: "${PG_DATABASE_URL}"
+      HASURA_GRAPHQL_ADMIN_SECRET: "${HASURA_GRAPHQL_ADMIN_SECRET}"
       restart: always
+    networks:
+      - datab
+    depends_on:
+      - express_server
+      - postgres
 
 volumes:
   db_data:
+      name: db_data
+      
+networks:
+  datab:
+    name: datab
