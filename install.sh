@@ -13,6 +13,7 @@ Cyan='\033[0;36m'         # Cyan
 White='\033[0;37m'        # White
 NC='\033[0m' # No Color
 package_manager="apt-get" # Assume that it is Ubuntu OS
+location="" # Assume that the default is local postgres
 
 is_command_present() {
     type "$1" >/dev/null 2>&1
@@ -38,15 +39,10 @@ has_cmd() {
 # Define a function to capture and store environment variables in a .env file
 ask_env() {
 
-
     # Check if the .env file already exists and backup it
     if [ -f .env ]; then
         mv .env .env.bak
     fi
-
-    # Create a temporary file for modified Docker Compose
-    temp_compose_file="temp-docker-compose.yml"
-    cp docker-compose.yml $temp_compose_file
 
     # Prompt the user for environment variable values
     echo "Please provide Hasura DB configuration as per your environment."
@@ -55,9 +51,6 @@ ask_env() {
     read -p "Is Postgres local or remote? (local/remote): " location
 
     if [ "$location" == "remote" ]; then
-        # Remove the 'postgres' service from the Docker Compose file
-        sed -i '/postgres:/,/^  hasura:/ { /hasura:/!{ /^  hasura:/!d } }' $temp_compose_file
-        sed -i '/^    depends_on:/,/      - postgres/{s/      - postgres//}' $temp_compose_file
 
         # Set environment variables for remote PostgreSQL
         read -p "Enter POSTGRES_PASSWORD: " POSTGRES_PASSWORD
@@ -90,7 +83,7 @@ ask_env() {
         echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
 
         echo "Environment variables saved to .env file."
-fi
+    fi
 
 }
 
@@ -192,7 +185,7 @@ bye() {  # Prints a friendly good bye message and exits the script.
 
         echo "🔴 The containers didn't seem to start correctly. Please run the following command to check containers that may have errored out:"
         echo ""
-        echo -e "docker-compose -f ./$temp_compose_file ps -a"
+        echo -e "docker-compose -f ./docker-compose.yml ps -a"
 
         echo "++++++++++++++++++++++++++++++++++++++++"
 
@@ -289,10 +282,14 @@ send_event() {
 download_composefile() {
 
         # Construct the Gist raw URL
-        GIST_RAW_URL="https://gist.githubusercontent.com/rajaganesh86/d815d6bc63eb94f30f3be5c21c663ba9/raw/477d29cd8598e75072a464a5824b52ee114ec013/docker-compose.yml"
-        
+        if [ "$location" == "remote" ]; then
+                GIST_RAW_URL="https://gist.github.com/rajaganesh86/bed9ad676d3edc15c8a062092e1f13f6/raw/d50ffad527453e8011f587bca747d268ae2c17b0/docker-compose-no-postgres.yml"
+        else
+                GIST_RAW_URL="https://gist.githubusercontent.com/rajaganesh86/d815d6bc63eb94f30f3be5c21c663ba9/raw/386ed95d8cc20ed3439180e6dbaf7fdde541bb2c/docker-compose.yml"
+        fi
+
         echo "Downloading docker-compose.yml file..."
-        curl -O -L "$GIST_RAW_URL" 2>/dev/null
+        curl -o docker-compose.yml -L "$GIST_RAW_URL" 2>/dev/null
 
         # Check if the download was successful
         if [ $? -eq 0 ]; then
@@ -337,12 +334,12 @@ if ! is_command_present docker-compose; then
 fi
 
 start_docker
-download_composefile
 ask_env
+download_composefile
 
 echo ""
 echo -e "\n🟡 Pulling the latest container images for Databrain.\n"
-docker-compose -f ./$temp_compose_file pull
+docker-compose -f ./docker-compose.yml pull
 #docker-compose pull
 
 echo ""
@@ -350,7 +347,7 @@ echo "🟡 Starting the Databrain containers. It may take a few minutes ..."
 echo
 # The docker-compose command does some nasty stuff for the `--detach` functionality. So we add a `|| true` so that the
 # script doesn't exit because this command looks like it failed to do it's thing.
-docker-compose -f ./$temp_compose_file up --detach --remove-orphans || true
+docker-compose -f ./docker-compose.yml up --detach --remove-orphans || true
 
 wait_for_containers_start 60
 echo ""
@@ -360,7 +357,7 @@ if [[ $status_code -ne 200 ]]; then
     echo "🔴 The containers didn't seem to start correctly. Please run the following command to check containers that may have errored out:"
     echo ""
 
-    echo -e "docker-compose -f ./$temp_compose_file ps -a"
+    echo -e "docker-compose -f ./docker-compose.yml ps -a"
 
     echo "++++++++++++++++++++++++++++++++++++++++"
 
@@ -377,7 +374,7 @@ else
     echo -e "🟢 Your frontend is running on http://localhost"
     echo ""
 
-    echo "ℹ️  To bring down Databrain and clean volumes : docker-compose -f ./$temp_compose_file down -v"
+    echo "ℹ️  To bring down Databrain and clean volumes : docker-compose -f ./docker-compose.yml down -v"
 
     echo ""
     echo "+++++++++++++++++++++++++++++++++++++++++++++++++"
