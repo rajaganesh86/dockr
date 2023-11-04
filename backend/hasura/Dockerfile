@@ -10,9 +10,10 @@ RUN curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bas
 #RUN mkdir -p /hasura-metadata
 
 # Copy your migration and metadata files into the container
-COPY migrations /migrations
-COPY metadata /metadata
-COPY config.yaml ./
+RUN hasura init hasura
+COPY migrations /hasura/migrations
+COPY metadata /hasura/metadata
+COPY config.yaml ./hasura/
 
 # Copy the entrypoint script into the container
 COPY entrypoint.sh ./
