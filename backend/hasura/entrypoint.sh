@@ -28,8 +28,9 @@ PID=$!
 wait_for_port 8080
 
 # Apply existing Hasura migrations and metadata
+cd /hasura
+hasura metadata apply
 hasura migrate apply --database-name pg
-hasura metadata apply --database-name pg
 
 # kill graphql engine that we started earlier
 log "killing temporary server"
