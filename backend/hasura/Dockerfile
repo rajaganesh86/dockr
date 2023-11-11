@@ -1,22 +1,11 @@
 # Use the official Hasura GraphQL Engine Docker image as the base image
-FROM hasura/graphql-engine:latest
+FROM hasura/hasura/graphql-engine:v2.33.0.cli-migrations-v3
 
-# Install Hasura CLI
-RUN apt update
-RUN curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bash
-
-# Create a directory for your migrations and metadata files
-#RUN mkdir -p /hasura-migrations
-#RUN mkdir -p /hasura-metadata
+RUN mkdir -p /hasura-migrations
+RUN mkdir -p /hasura-metadata
 
 # Copy your migration and metadata files into the container
-RUN hasura init hasura
-COPY migrations /hasura/migrations
-COPY metadata /hasura/metadata
-COPY config.yaml ./hasura/
-
-# Copy the entrypoint script into the container
-COPY entrypoint.sh ./
-
-# Make the entrypoint script executable
-RUN chmod +x ./entrypoint.sh
+COPY metadata /hasura-metadata
+COPY migrations /hasura-migrations
+COPY config.yaml ./
+EXPOSE 8080
