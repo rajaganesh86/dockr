@@ -6,10 +6,10 @@ import "./App.css";
 function App() {
   const [count, setCount] = useState(0);
   useEffect(() => {
-    fetch("http://localhost:8082/api/main")
+    fetch(`http://${window.location.host}:8082/api/main`)
       .then((res) => res.json())
       .then((res) => console.log(res, "res"));
-    fetch("http://localhost:8080/v1/graphql", {
+    fetch(`http://${window.location.host}:8080/v1/graphql`, {
       method: "POST",
 
       headers: {
