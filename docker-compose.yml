@@ -72,7 +72,6 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
-    command: ["./entrypoint.sh"]
     
 volumes:
   db_data:
