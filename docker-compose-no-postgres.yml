@@ -49,7 +49,6 @@ services:
     depends_on:
       express_server:
         condition: service_healthy
-    command: ["./entrypoint.sh"]
 
 volumes:
   db_data:
