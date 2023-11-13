@@ -1,5 +1,5 @@
 # Use the official Hasura GraphQL Engine Docker image as the base image
-FROM hasura/hasura/graphql-engine:v2.33.0.cli-migrations-v3
+FROM hasura/graphql-engine:v2.33.0.cli-migrations-v3
 
 RUN mkdir -p /hasura-migrations
 RUN mkdir -p /hasura-metadata
