@@ -283,9 +283,9 @@ download_composefile() {
 
         # Construct the Gist raw URL
         if [ "$location" == "remote" ]; then
-                GIST_RAW_URL="https://gist.githubusercontent.com/rajaganesh86/bed9ad676d3edc15c8a062092e1f13f6/raw/146e86163941f49924cf58c902dbcba33b0b2565/docker-compose-no-postgres.yml"
+                GIST_RAW_URL="https://gist.githubusercontent.com/rajaganesh86/bed9ad676d3edc15c8a062092e1f13f6/raw/bab75be4a9d51efdc8bdd8411995bbf9cbe33dd9/docker-compose-no-postgres.yml"
         else
-                GIST_RAW_URL="https://gist.githubusercontent.com/rajaganesh86/d815d6bc63eb94f30f3be5c21c663ba9/raw/a62a964d50659e9c9d1b7bfc5c380933eca4a804/docker-compose.yml"
+                GIST_RAW_URL="https://gist.githubusercontent.com/rajaganesh86/d815d6bc63eb94f30f3be5c21c663ba9/raw/4b0b69e9eda47724d0ed6902d934906a395a7946/docker-compose.yml"
         fi
 
         echo "Downloading docker-compose.yml file..."
