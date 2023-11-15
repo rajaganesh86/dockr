@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   react_app:
-    image: crajaganesh/databui:v1
+    image: public.ecr.aws/y2q8k8t4/databui:latest
     restart: always
     ports:
       - "80:80"
@@ -18,7 +18,7 @@ services:
       - datab
 
   express_server:
-    image: crajaganesh/databsvr:v1
+    image: public.ecr.aws/y2q8k8t4/databsvr:latest
     restart: always
     environment:
       - PORT=8082
@@ -34,7 +34,7 @@ services:
       - datab
 
   hasura:
-    image: crajaganesh/databhasura:v1
+    image: public.ecr.aws/y2q8k8t4/databhasura:latest
     ports:
       - "8080:8080"
     environment:
