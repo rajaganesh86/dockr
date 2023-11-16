@@ -35,7 +35,7 @@ jobs:
         with:
           registry-type: public
         
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Build, tag, and push main image to Amazon ECR
         id: build-image-main
         if: ${{ github.ref_name == 'main' }}
         env:
@@ -51,7 +51,7 @@ jobs:
           docker push $ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG"
              
-      - name: "Build, Tag, and push the Docker image"
+      - name: Build, tag, and push tagged image to Amazon ECR
         id: build-image-tag
         if: ${{ github.ref_name != 'main' }}
         env:
