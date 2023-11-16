@@ -1,4 +1,4 @@
-name: Build and Push Hasura Image to public ECR
+name: Build and publish Hasura Image to Amazon public ECR
 
 on:
   push:
@@ -6,15 +6,15 @@ on:
     tags: ["v[0-9]+.[0-9]+.[0-9]*"]
 
 env:
-  AWS_REGION: ${{ secrets.AWS_REGION }} # set this to your preferred AWS region, e.g. us-west-1
-  ECR_REPOSITORY: ${{ secrets.HASURA_PUBLIC_ECR_REPOSITORY }} # set this to your Amazon ECR repository name
+  AWS_REGION: ${{ secrets.AWS_REGION }} 
+  ECR_REPOSITORY: ${{ secrets.HASURA_PUBLIC_ECR_REPOSITORY }}
 
 permissions:
   contents: read
 
 jobs:
-  deploy:
-    name: Deploy
+  publish:
+    name: Publish
     runs-on: ubuntu-latest
     environment: staging
 
@@ -44,12 +44,10 @@ jobs:
           IMAGE_TAG: latest
         working-directory: ./backend/hasura
         run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
+          # Build and publish Hasura 'main' version in Amazon public ECR
           docker build -t $ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "image=$ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
              
       - name: Build, tag, and push tagged image to Amazon ECR
         id: build-image-tag
@@ -60,9 +58,7 @@ jobs:
           IMAGE_TAG: ${{ github.ref_name }}
         working-directory: ./backend/hasura
         run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
+          # Build and publish Hasura tagged version in Amazon public ECR
           docker build -t $ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "image=$ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
