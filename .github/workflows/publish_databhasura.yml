@@ -34,7 +34,7 @@ jobs:
           registry-type: public
           
       - name: Extract Git Tag
-        run: echo "GIT_TAG=${{ github.ref_name }}" >> $GITHUB_ENV
+        run: echo "GIT_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
         
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
