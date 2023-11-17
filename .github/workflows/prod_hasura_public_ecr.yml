@@ -1,0 +1,48 @@
+name: Build and publish Hasura Image to Amazon public ECR
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]*"]
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }} 
+  ECR_REPOSITORY: ${{ secrets.HASURA_PUBLIC_ECR_REPOSITORY }}
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+          
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+             
+      - name: Build, tag, and push tagged image to Amazon ECR
+        id: build-image-tag
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          REGISTRY_ALIAS: y2q8k8t4
+          IMAGE_TAG: ${{ github.ref_name }}
+        working-directory: ./backend/hasura
+        run: |
+          # Build and publish Hasura tagged version in Amazon public ECR
+          docker build -t $ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
